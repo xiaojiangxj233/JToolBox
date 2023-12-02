@@ -11,7 +11,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -24,30 +23,50 @@ using static System.Net.Mime.MediaTypeNames;
 namespace JToolBox
 {
     /// <summary>
-    /// MainWindow.xaml 的交互逻辑
+    /// 主窗口类
     /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
-            
         }
+
+        // 托盘图标对象
         private static NotifyIcon notifyIcon;
+
+        // 是否开启托盘提示
         private bool IsTPTS = false;
+
+        // 是否开启Ban Tracker
         private bool IsEnableTracker = false;
+
+        // 上一次查询的 Watchdog 和 Staff 的总人数
+        private static int previousWatchdogTotal = -1;
+        private static int previousStaffTotal = -1;
+
+        // Ban Tracker 的查询延迟时间
+        private double delaytime;
+
+        /// <summary>
+        /// 当 "托盘提示" 复选框被勾选时触发的事件
+        /// </summary>
         private void CheckBoxTPTS_Checked(object sender, RoutedEventArgs e)
         {
             IsTPTS = TPTS.IsChecked.GetValueOrDefault();
-            if(IsTPTS)
+            if (IsTPTS)
             {
-                OMGtotal.Show("提示","托盘提示已经开启","success.png");
+                OMGtotal.Show("提示", "托盘提示已经开启", "success.png");
             }
             else
             {
                 OMGtotal.Show("提示", "托盘提示已经关闭", "disable.png");
             }
         }
+
+        /// <summary>
+        /// 表示 API 返回的数据结构
+        /// </summary>
         private class ApiData
         {
             public class Record
@@ -63,8 +82,9 @@ namespace JToolBox
             public Record record { get; set; }
         }
 
-        private static int previousWatchdogTotal = -1;
-        private static int previousStaffTotal = -1;
+        /// <summary>
+        /// Ban Tracker 按钮点击事件
+        /// </summary>
         private async void BanTrackerBtn_Click(object sender, RoutedEventArgs e)
         {
             if (IsEnableTracker)
@@ -80,7 +100,7 @@ namespace JToolBox
                     Foreground = System.Windows.Media.Brushes.Green,
                     FontFamily = new System.Windows.Media.FontFamily("Microsoft YaHei UI"),
                     FontSize = 14
-                });;
+                });
                 LRichTextBox.Document.Blocks.Add(paragraph);
                 IsEnableTracker = true;
                 BanTrackerBtn.Content = "关闭";
@@ -90,8 +110,7 @@ namespace JToolBox
                 {
                     using (var httpClientHandler = new HttpClientHandler())
                     {
-                        // 忽略 SSL 证书验证
-                        // ...
+                        
 
                         using (var httpClient = new HttpClient(httpClientHandler))
                         {
@@ -154,7 +173,6 @@ namespace JToolBox
                                             {
                                                 if (watchdogIncrease >= 5)
                                                 {
-
                                                     OMGtotal.Show("A Player Banned", $"👮Staff banned {staffIncrease} player(s) in last {delaytime}s.Insance!\U0001f921", "ban.png");
                                                 }
                                                 else
@@ -193,13 +211,15 @@ namespace JToolBox
                     }
                     int.TryParse(delayTextBox.Text, out int delayValue);
                     // 等待10秒
-
                     delaytime = delayValue / 1000.0;
                     await Task.Delay(delayValue);
                 }
             }
-            
         }
+
+        /// <summary>
+        /// 显示信息通知
+        /// </summary>
         private static void ShowInfoNotification(string content)
         {
             // 创建托盘图标
@@ -232,7 +252,10 @@ namespace JToolBox
             // 显示通知
             notifyIcon.ShowBalloonTip(3000); // 显示通知 3 秒钟
         }
-        private double delaytime; 
+
+        /// <summary>
+        /// 添加黑色文本到 RichTextBox
+        /// </summary>
         private void AddBlackText(string text)
         {
             Paragraph paragraph = new Paragraph(new Run(text)
@@ -243,6 +266,10 @@ namespace JToolBox
             });
             LRichTextBox.Document.Blocks.Add(paragraph);
         }
+
+        /// <summary>
+        /// 添加红色文本到 RichTextBox
+        /// </summary>
         private void AddRedText(string text)
         {
             Paragraph paragraph = new Paragraph(new Run(text)
@@ -253,6 +280,10 @@ namespace JToolBox
             });
             LRichTextBox.Document.Blocks.Add(paragraph);
         }
+
+        /// <summary>
+        /// 延迟输入框的预览文本输入事件
+        /// </summary>
         private void delayTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             // 检查输入是否为数字
@@ -262,24 +293,35 @@ namespace JToolBox
             }
         }
 
+        /// <summary>
+        /// 延迟输入框文本输入事件
+        /// </summary>
         private void delayTextBox_TextInput(object sender, TextCompositionEventArgs e)
         {
             System.Windows.Controls.TextBox textBox = (System.Windows.Controls.TextBox)sender;
             textBox.Text = new string(textBox.Text.Where(char.IsDigit).ToArray());
         }
 
+        /// <summary>
+        /// RichTextBox 文本变化事件
+        /// </summary>
         private void LRichTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-
+            // 可以添加额外的处理逻辑
         }
 
+        /// <summary>
+        /// 窗口初始化事件
+        /// </summary>
         private void Window_Initialized(object sender, EventArgs e)
         {
             LRichTextBox.Document.Blocks.Clear();
-            OMGtotal.Show("Welcome","欢迎使用JToolBox","success.png");
-            
+            OMGtotal.Show("Welcome", "欢迎使用JToolBox", "success.png");
         }
 
+        /// <summary>
+        /// "托盘提示" 复选框取消勾选事件
+        /// </summary>
         private void TPTS_Unchecked(object sender, RoutedEventArgs e)
         {
             IsTPTS = TPTS.IsChecked.GetValueOrDefault();
@@ -293,26 +335,33 @@ namespace JToolBox
             }
         }
 
+        /// <summary>
+        /// 不要点击这个按钮事件，打开B站链接
+        /// </summary>
         private void DonotClickthis_Click(object sender, RoutedEventArgs e)
         {
             Process.Start("https://www.bilibili.com/video/BV1GJ411x7h7/");
         }
 
-        
-
+        /// <summary>
+        /// 获取 Ban 按钮点击事件，播放声音
+        /// </summary>
         private void getbanbtn_Click(object sender, RoutedEventArgs e)
         {
             AudioPlayer.PlayEmbeddedResourceAsync("src.getban.MP3");
         }
 
+        /// <summary>
+        /// 弹框按钮点击事件
+        /// </summary>
         private void tanboxbtn_Click(object sender, RoutedEventArgs e)
         {
-            if(msgtitlebox.Text == string.Empty)
+            if (msgtitlebox.Text == string.Empty)
             {
                 System.Windows.Forms.MessageBox.Show("未填写标题");
                 return;
             }
-            if(msgtextbox.Text == string.Empty)
+            if (msgtextbox.Text == string.Empty)
             {
                 System.Windows.Forms.MessageBox.Show("未填写内容");
                 return;
@@ -323,7 +372,6 @@ namespace JToolBox
                 return;
             }
             OMGtotal.Show(msgtitlebox.Text, msgtextbox.Text, selimgbox.Text);
-
         }
     }
 }
