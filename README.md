@@ -5,7 +5,8 @@
 安装.net framework 4.7.2及以上<br>
 ## 兼容性：
 Mica效果只支持win11<br>
-目前仅测试过Windows 10 22H1的运行效果
+目前仅测试过Windows 10 22H1的运行效果<br>
+界面设计器不支持Costura.Fody
 ## 样貌：
 ![image](https://github.com/xiaojiangxj233/JToolBox/assets/109403149/5498ee0e-9163-4dfa-add8-ece7ed6eb4da)
 ![image](https://github.com/xiaojiangxj233/JToolBox/assets/109403149/216a48a4-2e5d-443b-898b-af49525cf688)
